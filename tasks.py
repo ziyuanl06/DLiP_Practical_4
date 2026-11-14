@@ -322,7 +322,23 @@ np.all(sigmoid(np.log([1, 1/3, 1/7])) == np.array([1/2, 1/4, 1/8]))
 # Your code here:
 # -----------------------------------------------
 def rnn_layer(w: np.array, list_of_sequences: list[np.array], sigma=sigmoid ) -> np.array:
-    pass # Your code
+    W = w[0:9].reshape(3, 3)
+    U = w[9:18].reshape(3, 3)
+    B = w[18:].reshape(1, 3)
+
+    nr_sequences = len(list_of_sequences)
+    outputs = np.zeros(nr_sequences)
+
+    for i in range(nr_sequences):
+        X = list_of_sequences[i]
+        a = 0 * X[0, ]
+
+        for j in range(len(X)):
+            a = W @ X[j, ] + U @ a
+
+        outputs[i] = (B @ a).item()
+
+    return(outputs)
 
 # Test
 np.random.seed(10)
@@ -356,8 +372,13 @@ o.shape == (100,) and o.mean().round(3) == 16.287 and o.std().astype(int) == 133
 
 # Your code here:
 # -----------------------------------------------
-def rnn_loss(w: np.array, w, list_of_sequences: list[np.array], y: np.array) -> np.float64:
-    pass # Your code
+def rnn_loss(w: np.array, list_of_sequences: list[np.array], y: np.array) -> np.float64:
+    pred = rnn_layer(w, list_of_sequences)
+    loss = 0
+    for obs in range(len(y)):
+        loss += (y[obs] - pred[obs]) ** 2
+    
+    return(loss / len(y))
 
 # Test:
 y = np.array([(X @ np.arange(1,4))[0] for X in list_of_sequences])
