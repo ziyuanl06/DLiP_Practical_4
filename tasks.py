@@ -46,14 +46,11 @@ print(tokens)
 
 # Your code here:
 # -----------------------------------------------
-def tokenize(string: str) -> list:
-    tokens_raw = [word for word in string.split()]
+def tokenize(text: str) -> list:
+    tokens_raw = text.split()
     tokens = [word.strip(st.punctuation) for word in tokens_raw]
-    tokens = [word.lower() for word in tokens if bool(word)]
-    tokens = list(set(tokens))
-    tokens.sort()
-
-    return(tokens)
+    tokens = [word.lower() for word in tokens if word]
+    return tokens
 
 
 # -----------------------------------------------
@@ -101,22 +98,10 @@ word_frequencies = {word:freq for word, freq in word_frequencies.items() if freq
 
 # Your code here:
 # -----------------------------------------------
-def tokenize_full(string: str) -> list:
-    tokens_raw = [word for word in string.split()]
-    tokens = [word.strip(st.punctuation) for word in tokens_raw]
-    tokens = [word.lower() for word in tokens if bool(word)]
-
-    return(tokens)
-
-
-def token_counts(string: str, k: int = 1) -> dict:
-    tok_list = tokenize(string)
-    tok_list_full = tokenize_full(string)
-
-    word_frequencies_full = {token: tok_list_full.count(token) for token in tok_list}
-    word_frequencies = {word:freq for word, freq in word_frequencies_full.items() if freq > k}
-
-    return(word_frequencies)
+def token_counts(text, k=1):
+    tokens = tokenize(text)
+    counts = {word: tokens.count(word) for word in set(tokens)}
+    return {word: count for word, count in counts.items() if count >= k}
 
 # test:
 text_hist = {'the': 2, 'quick': 1, 'brown': 1, 'fox': 1, 'jumps': 1, 'over': 1, 'lazy': 1, 'dog': 1}
@@ -147,8 +132,12 @@ all(text_hist[key] == value for key, value in token_counts(text).items())
 
 # Your code here:
 # -----------------------------------------------
-tok_list = tokenize(text)
-token_to_id = {key:value for value, key in enumerate(tok_list)}
+tok_list = sorted(set(tokenize(text)))
+
+token_to_id = {
+    token: i
+    for i, token in enumerate(tok_list)
+}
 
 # Expected output: {'dog': 0, 'quick': 1, 'fox': 2, 'the': 3, 'over': 4, 'lazy': 5, 'brown': 6, 'jumps': 7}
 print(token_to_id)
@@ -160,7 +149,10 @@ print(token_to_id)
 #
 # Your code here:
 # -----------------------------------------------
-id_to_token =  {key:value for key, value in enumerate(tok_list)}# Your code here
+id_to_token = {
+    i: token
+    for token, i in token_to_id.items()
+}
 
 # tests: 
 # test 1
@@ -181,17 +173,27 @@ assert all(id_to_token[token_to_id[key]]==key for key in token_to_id) and all(to
 # Your code here:
 # -----------------------------------------------
 def make_vocabulary_map(documents: list) -> tuple:
-    # Hint: use your tokenize function
     tok_list_all = []
+
     for doc in documents:
         tok_list = tokenize(doc)
         for word in tok_list:
             tok_list_all.append(word)
-    
-    tok_list_all = list(set(tok_list_all))
-    token_to_id = {key:value for value, key in enumerate(tok_list_all)}
-    id_to_token =  {key:value for key, value in enumerate(tok_list_all)}
-    return(token_to_id, id_to_token)
+
+    # 去重并按字母顺序排序
+    tok_list_all = sorted(set(tok_list_all))
+
+    token_to_id = {
+        key: value
+        for value, key in enumerate(tok_list_all)
+    }
+
+    id_to_token = {
+        key: value
+        for key, value in enumerate(tok_list_all)
+    }
+
+    return token_to_id, id_to_token
 
 
 # Test
@@ -210,17 +212,27 @@ all(i2t[t2i[tok]] == tok for tok in t2i) # should be True
 
 # Your code here:
 # -----------------------------------------------
-def tokenize_and_encode(documents: list) -> list:
-    # Hint: use your make_vocabulary_map and tokenize function
-    token_to_id, id_to_token = make_vocabulary_map(documents)
-    tok_doc_all = []
-    
-    for doc in documents:
-        tok_list = tokenize_full(doc)
-        tok_doc = [token_to_id[tok] for tok in tok_list]
-        tok_doc_all.append(tok_doc)
-    
-    return(tok_doc_all, token_to_id, id_to_token)
+def tokenize_and_encode(documents):
+    all_tokens = sorted(set(
+        token
+        for doc in documents
+        for token in tokenize(doc)
+    ))
+
+    token_to_id = {
+        token: i for i, token in enumerate(all_tokens)
+    }
+
+    id_to_token = {
+        i: token for token, i in token_to_id.items()
+    }
+
+    encoded = [
+        [token_to_id[token] for token in tokenize(doc)]
+        for doc in documents
+    ]
+
+    return encoded, token_to_id, id_to_token
 
 
 # Test:
@@ -458,5 +470,6 @@ plt.plot(yy)
 plt.plot(pred)
 plt.plot(linreg_pred)
 plt.legend(['Truth','RNN','LinReg'])
+
 
 
