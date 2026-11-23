@@ -1,5 +1,4 @@
 import numpy as np
-import string as st
 
 # Follow the tasks below to practice basic Python concepts.
 # Write your code in between the dashed lines.
@@ -30,8 +29,7 @@ import string as st
 text = "The quick brown fox jumps over the lazy dog!"
 
 # Write a list comprehension to tokenize the text and remove punctuation
-tokens_raw = [word for word in text.split()]# Your code here
-tokens = [word.strip(st.punctuation) for word in tokens_raw]
+tokens = [word.strip(".,!?;:'\"()[]{}") for word in text.split()]
 
 # Expected output: ['The', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog']
 print(tokens)
@@ -47,10 +45,11 @@ print(tokens)
 # Your code here:
 # -----------------------------------------------
 def tokenize(text: str) -> list:
-    tokens_raw = text.split()
-    tokens = [word.strip(st.punctuation) for word in tokens_raw]
-    tokens = [word.lower() for word in tokens if word]
-    return tokens
+    tokens = [
+        word.strip(".,!?;:'\"()[]{}").lower()
+        for word in text.split()
+    ]
+    return [word for word in tokens if word]
 
 
 # -----------------------------------------------
@@ -80,8 +79,7 @@ def tokenize(text: str) -> list:
 # Your code here:
 # -----------------------------------------------
 tok_list = tokenize(text)
-tok_list_full = [word.lower() for word in tokens]
-tok_list_full = [word.strip(st.punctuation) for word in tok_list_full]
+tok_list_full = tokenize(text)
 
 word_frequencies = {token: tok_list_full.count(token) for token in tok_list}
 
